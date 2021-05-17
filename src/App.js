@@ -35,6 +35,20 @@ function drawTimeline(ctx) {
     ctx.fill();
 }
 
+function drawPixel(ctx, x, y, colour) {
+    ctx.fillStyle = colour;
+    ctx.fillRect(x, y, 1, 1);
+}
+
+function drawPixels(ctx) {
+    for (let i = 0; i < 1000; i++) {
+        const x = Math.floor(Math.random() * canvasWidth);
+        const y = Math.floor(Math.random() * canvasHeight);
+        const lightness = Math.floor(Math.random() * 255);
+        drawPixel(ctx, x, y, `rgb(${lightness} ${lightness} ${lightness}`);
+    }
+}
+
 function App() {
     const canvasRef = useRef();
 
@@ -46,6 +60,7 @@ function App() {
         canvasRef.current.style.height = canvasHeight + 'px';
         const ctx = canvasRef.current.getContext('2d');
 
+        drawPixels(ctx);
         drawYou(ctx);
         drawTimeline(ctx);
 
