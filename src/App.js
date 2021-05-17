@@ -29,48 +29,76 @@ function drawPixels(ctx) {
     }
 }
 
-function drawTimeline(ctx) {
+function drawTimeline(ctx, timelineProps) {
+    if (timelineProps.width === 0) {
+        return;
+    }
     const strokeColour = "red";
     const fillColour = "pink";
-    const x = 0;
+    const x = timelineWidth;
     const y = canvasHeight - gapToBottom - timelineHeight;
-    ctx.rect(x, y, timelineWidth, timelineHeight)
     ctx.strokeStyle = strokeColour;
-    ctx.stroke();
     ctx.fillStyle = fillColour;
+    ctx.fillRect(x, y, -timelineProps.width, timelineHeight);
+    ctx.stroke();
+}
+
+function drawNotch(ctx, notchPosition) {
+    const strokeColour = "green";
+    const fillColour = "blue";
+    const notchWidth = 2;
+    const notchHeight = unit * 10;
+    const x = timelineWidth - notchPosition - notchWidth / 2;
+    const y = canvasHeight - gapToBottom - notchHeight;
+    ctx.strokeStyle = strokeColour;
+    ctx.fillStyle = fillColour;
+    ctx.rect(x, y, notchWidth, notchHeight);
+    ctx.stroke();
     ctx.fill();
 }
 
-function drawYou(ctx, ballPosition) {
+function drawNotches(ctx, timelineProps) {
+    const notchSeparation = timelineWidth / 10;
+    let notchPosition = notchSeparation;
+    while (notchPosition < timelineProps.width) {
+        drawNotch(ctx, notchPosition);
+        notchPosition += notchSeparation;
+    }
+}
+
+function drawYou(ctx, ballProps) {
     const strokeColour = "red";
     const fillColour = "pink";
-    ctx.beginPath();
     ctx.strokeStyle = strokeColour;
-    ctx.arc(ballPosition.x, ballPosition.y, youRadius, 0, 2 * Math.PI);
-    ctx.stroke();
     ctx.fillStyle = fillColour;
+    ctx.beginPath();
+    ctx.arc(ballProps.x, ballProps.y, youRadius, 0, 2 * Math.PI);
+    ctx.stroke();
     ctx.fill();
 }
 
 function animateYou(ctx) {
-    let ballPosition = {
+    let ballProps = {
         x: canvasWidth / 2,
         y: canvasHeight / 2,
+    }
+    let timelineProps = {
+        width: 0,
     }
 
     function render() {
         blankCanvas(ctx);
-        drawPixels(ctx);
-        drawTimeline(ctx);
-        drawYou(ctx, ballPosition);
+        // drawPixels(ctx);
+        drawTimeline(ctx, timelineProps);
+        drawNotches(ctx, timelineProps);
+        drawYou(ctx, ballProps);
     }
 
     anime.timeline({
-        targets: ballPosition,
         loop: true,
         update: render,
-        duration: 2000,
     }).add({
+        targets: ballProps,
         keyframes: [
             {
                 x: canvasWidth / 2,
@@ -82,6 +110,19 @@ function animateYou(ctx) {
             },
         ],
         easing: 'cubicBezier(0.450, 0.010, 0.010, 1.000)',
+        duration: 2000,
+    }).add({
+        targets: timelineProps,
+        keyframes: [
+            {
+                width: 0,
+            },
+            {
+                width: timelineWidth,
+            },
+        ],
+        easing: 'cubicBezier(0.450, 0.010, 0.010, 1.000)',
+        duration: 4000,
     });
 }
 
